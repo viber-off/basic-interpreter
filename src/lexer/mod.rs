@@ -20,6 +20,27 @@ impl Lexer {
         self.input.chars().nth(self.position)
     }
 
+    fn handle_digits(&mut self, c: char) -> Token {
+        let mut number = c.to_string();
+        self.advance();
+
+        while let Some(c) = self.next_char() {
+            if c.is_digit(10) {
+                number.push(c);
+                self.advance();
+            } else {
+                break;
+            }
+        }
+
+        let token: Token = match number.parse::<i64>() {
+            Ok(value) => Token::Number(value),
+            Err(_) => panic!("Failed to parse '{}' as i64", number),
+        };
+
+        token
+    }
+
     pub fn lex(&mut self) -> Vec<Token> {
         let mut tokens: Vec<Token> = Vec::new();
         while let Some(c) = self.next_char() {
@@ -47,6 +68,13 @@ impl Lexer {
                 '=' => {
                     self.advance();
                     tokens.push(Token::Equal)
+                }
+                c if c.is_digit(10) => {
+                    let token = self.handle_digits(c);
+                    tokens.push(token);
+                }
+                c if c.is_whitespace() => {
+                    self.advance();
                 }
                 c => {
                     println!("An unexpected character was found by the lexer '{}'.", c);

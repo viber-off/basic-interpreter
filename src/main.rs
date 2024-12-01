@@ -3,7 +3,7 @@ use lexer::Lexer;
 mod lexer;
 
 fn main() {
-    let source_code = String::from("+=*");
+    let source_code = String::from("10 3040 +=*");
 
     let mut lexer = Lexer::new(source_code);
 
