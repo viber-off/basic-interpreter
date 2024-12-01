@@ -22,20 +22,38 @@ impl Lexer {
 
     fn handle_digits(&mut self, c: char) -> Token {
         let mut number = c.to_string();
+        let mut has_dot = false;
         self.advance();
 
         while let Some(c) = self.next_char() {
             if c.is_digit(10) {
                 number.push(c);
                 self.advance();
+            } else if c == '.' {
+                if has_dot {
+                    break;
+                } else {
+                    has_dot = true;
+                    number.push(c);
+                    self.advance();
+                }
             } else {
                 break;
             }
         }
 
-        let token: Token = match number.parse::<i64>() {
-            Ok(value) => Token::Number(value),
-            Err(_) => panic!("Failed to parse '{}' as i64", number),
+        let token;
+
+        if has_dot {
+            token = match number.parse::<f64>() {
+                Ok(value) => Token::Float(value),
+                Err(_) => panic!("Failed to parse '{}' as f64", number),
+            }
+        } else {
+            token = match number.parse::<i64>() {
+                Ok(value) => Token::Number(value),
+                Err(_) => panic!("Failed to parse '{}' as i64", number),
+            }
         };
 
         token
